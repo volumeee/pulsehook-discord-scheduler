@@ -1,0 +1,10 @@
+.next
+dist
+node_modules
+backend/.venv
+backend/__pycache__
+coverage
+*.tsbuildinfo
+next-env.d.ts
+bun.lock
+package-lock.json

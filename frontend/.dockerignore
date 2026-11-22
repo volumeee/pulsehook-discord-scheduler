@@ -1,0 +1,12 @@
+.env
+.env.*
+.git
+.gitignore
+.next
+node_modules
+coverage
+*.log
+*.md
+.vscode
+.idea
+tsconfig.tsbuildinfo

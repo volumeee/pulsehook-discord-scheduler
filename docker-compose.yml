@@ -1,0 +1,91 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-pulsehook}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pulsehook_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-pulsehook}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - pulsehook_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-pulsehook} -d ${POSTGRES_DB:-pulsehook}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql://pulsehook:pulsehook_dev_password@postgres:5432/pulsehook}
+      FLASK_ENV: ${FLASK_ENV:-production}
+      BACKEND_PORT: 5001
+      GUNICORN_WORKERS: 1
+      GUNICORN_THREADS: 4
+      API_KEY: ${API_KEY:-}
+      API_KEY_USER_ID: ${API_KEY_USER_ID:-}
+      AUTH_TOKEN_SECRET: ${AUTH_TOKEN_SECRET:-local-dev-change-this-secret-in-production}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RESEND_FROM: ${RESEND_FROM:-PulseHook <noreply@pulsehook.bagos.web.id>}
+      APP_BASE_URL: ${APP_BASE_URL:-http://localhost:3000}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+      ALLOW_REGISTRATION: ${ALLOW_REGISTRATION:-true}
+      DISCORD_TIMEOUT_SECONDS: 10
+      ENABLE_SCHEDULER: "true"
+      QSTASH_URL: ${QSTASH_URL:-https://qstash.upstash.io}
+      QSTASH_TOKEN: ${QSTASH_TOKEN:-}
+      QSTASH_MAX_RETRIES: ${QSTASH_MAX_RETRIES:-3}
+      QSTASH_LOG_SYNC_TTL_SECONDS: ${QSTASH_LOG_SYNC_TTL_SECONDS:-15}
+      VPS_KEEPALIVE_CRON: ${VPS_KEEPALIVE_CRON:-}
+      VPS_KEEPALIVE_URL: ${VPS_KEEPALIVE_URL:-}
+      VPS_KEEPALIVE_BEARER_TOKEN: ${VPS_KEEPALIVE_BEARER_TOKEN:-}
+    ports:
+      - "127.0.0.1:5001:5001"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:5001/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+      args:
+        BACKEND_URL: http://backend:5001
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      BACKEND_URL: http://backend:5001
+      PORT: 3000
+    ports:
+      - "127.0.0.1:3000:3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  tunnel:
+    image: cloudflare/cloudflared:2025.4.0
+    restart: unless-stopped
+    profiles: ["tunnel"]
+    command: tunnel run
+    environment:
+      TUNNEL_TOKEN: ${CLOUDFLARE_TUNNEL_TOKEN:-}
+    depends_on:
+      frontend:
+        condition: service_healthy
+
+volumes:
+  pulsehook_pgdata:

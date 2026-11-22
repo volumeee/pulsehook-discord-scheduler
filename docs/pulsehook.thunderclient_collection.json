@@ -1,0 +1,599 @@
+{
+  "clientName": "Thunder Client",
+  "client": "Thunder Client",
+  "collectionName": "PulseHook API",
+  "name": "PulseHook API",
+  "description": "PulseHook API collection. Set baseUrl to https://pulsehook.bagos.web.id for production and paste an account API key into apiKey for protected requests.",
+  "dateExported": "2026-11-22T00:00:00.000Z",
+  "version": "1.2",
+  "variables": [
+    {
+      "name": "baseUrl",
+      "value": "http://localhost:3000",
+      "description": "Production: https://pulsehook.bagos.web.id"
+    },
+    {
+      "name": "apiKey",
+      "value": "",
+      "description": "PulseHook API key"
+    },
+    {
+      "name": "taskId",
+      "value": "1",
+      "description": "Existing task ID"
+    },
+    {
+      "name": "keyId",
+      "value": "1",
+      "description": "Existing API key ID"
+    }
+  ],
+  "folders": [
+    {
+      "_id": "c1e1d100-0001-4d7a-8000-000000000001",
+      "name": "Health",
+      "containerId": "",
+      "sortNum": 10000
+    },
+    {
+      "_id": "c1e1d100-0002-4d7a-8000-000000000002",
+      "name": "Auth & Recovery",
+      "containerId": "",
+      "sortNum": 20000
+    },
+    {
+      "_id": "c1e1d100-0003-4d7a-8000-000000000003",
+      "name": "Tasks CRUD & Execution",
+      "containerId": "",
+      "sortNum": 30000
+    },
+    {
+      "_id": "c1e1d100-0004-4d7a-8000-000000000004",
+      "name": "Logs & Stats",
+      "containerId": "",
+      "sortNum": 40000
+    },
+    {
+      "_id": "c1e1d100-0005-4d7a-8000-000000000005",
+      "name": "API Keys",
+      "containerId": "",
+      "sortNum": 50000
+    }
+  ],
+  "requests": [
+    {
+      "_id": "c1e1d200-0001-4d7a-8000-000000000001",
+      "containerId": "c1e1d100-0001-4d7a-8000-000000000001",
+      "name": "Health check",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/health",
+      "headers": [],
+      "params": [],
+      "body": {
+        "type": "none",
+        "raw": "",
+        "form": []
+      },
+      "sortNum": 10000
+    },
+    {
+      "_id": "c1e1d200-0002-4d7a-8000-000000000002",
+      "containerId": "c1e1d100-0002-4d7a-8000-000000000002",
+      "name": "Authentication status",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/auth/status",
+      "headers": [],
+      "params": [],
+      "body": {
+        "type": "none",
+        "raw": "",
+        "form": []
+      },
+      "sortNum": 10000
+    },
+    {
+      "_id": "c1e1d200-0003-4d7a-8000-000000000003",
+      "containerId": "c1e1d100-0002-4d7a-8000-000000000002",
+      "name": "Register account",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/auth/register",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"username\": \"pulsehook_evaluator\",\n  \"email\": \"evaluator@example.com\",\n  \"password\": \"SecurePass123\"\n}",
+        "form": []
+      },
+      "sortNum": 20000
+    },
+    {
+      "_id": "c1e1d200-0004-4d7a-8000-000000000004",
+      "containerId": "c1e1d100-0002-4d7a-8000-000000000002",
+      "name": "Start login OTP challenge",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/auth/login",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"identifier\": \"evaluator@example.com\",\n  \"password\": \"SecurePass123\"\n}",
+        "form": []
+      },
+      "sortNum": 30000
+    },
+    {
+      "_id": "c1e1d200-0005-4d7a-8000-000000000005",
+      "containerId": "c1e1d100-0002-4d7a-8000-000000000002",
+      "name": "Verify OTP and start session",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/auth/verify-otp",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"challengeToken\": \"replace-with-the-challenge-token-from-register-or-login\",\n  \"code\": \"123456\"\n}",
+        "form": []
+      },
+      "sortNum": 40000
+    },
+    {
+      "_id": "c1e1d200-0006-4d7a-8000-000000000006",
+      "containerId": "c1e1d100-0002-4d7a-8000-000000000002",
+      "name": "Resend OTP",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/auth/resend-otp",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"challengeToken\": \"replace-with-the-challenge-token-from-register-or-login\"\n}",
+        "form": []
+      },
+      "sortNum": 50000
+    },
+    {
+      "_id": "c1e1d200-0007-4d7a-8000-000000000007",
+      "containerId": "c1e1d100-0002-4d7a-8000-000000000002",
+      "name": "Refresh session cookies",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/auth/refresh",
+      "headers": [
+        {
+          "name": "Origin",
+          "value": "{{baseUrl}}"
+        },
+        {
+          "name": "X-Requested-With",
+          "value": "PulseHook"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "none",
+        "raw": "",
+        "form": []
+      },
+      "sortNum": 60000
+    },
+    {
+      "_id": "c1e1d200-0008-4d7a-8000-000000000008",
+      "containerId": "c1e1d100-0002-4d7a-8000-000000000002",
+      "name": "Sign out",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/auth/logout",
+      "headers": [
+        {
+          "name": "Origin",
+          "value": "{{baseUrl}}"
+        },
+        {
+          "name": "X-Requested-With",
+          "value": "PulseHook"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "none",
+        "raw": "",
+        "form": []
+      },
+      "sortNum": 70000
+    },
+    {
+      "_id": "c1e1d200-0009-4d7a-8000-000000000009",
+      "containerId": "c1e1d100-0002-4d7a-8000-000000000002",
+      "name": "Request password reset",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/auth/forgot-password",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"identifier\": \"evaluator@example.com\"\n}",
+        "form": []
+      },
+      "sortNum": 80000
+    },
+    {
+      "_id": "c1e1d200-0010-4d7a-8000-000000000010",
+      "containerId": "c1e1d100-0002-4d7a-8000-000000000002",
+      "name": "Validate password reset token",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/auth/reset-password/validate",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"token\": \"ph_rst_replace_with_a_valid_reset_token\"\n}",
+        "form": []
+      },
+      "sortNum": 90000
+    },
+    {
+      "_id": "c1e1d200-0011-4d7a-8000-000000000011",
+      "containerId": "c1e1d100-0002-4d7a-8000-000000000002",
+      "name": "Reset password",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/auth/reset-password",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"token\": \"ph_rst_replace_with_a_valid_reset_token\",\n  \"newPassword\": \"NewSecurePass123\"\n}",
+        "form": []
+      },
+      "sortNum": 100000
+    },
+    {
+      "_id": "c1e1d200-0012-4d7a-8000-000000000012",
+      "containerId": "c1e1d100-0002-4d7a-8000-000000000002",
+      "name": "Current principal",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/auth/me",
+      "headers": [
+        {
+          "name": "X-API-Key",
+          "value": "{{apiKey}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "none",
+        "raw": "",
+        "form": []
+      },
+      "sortNum": 110000
+    },
+    {
+      "_id": "c1e1d200-0013-4d7a-8000-000000000013",
+      "containerId": "c1e1d100-0003-4d7a-8000-000000000003",
+      "name": "List tasks",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/tasks?status=active&search=standup",
+      "headers": [
+        {
+          "name": "X-API-Key",
+          "value": "{{apiKey}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "none",
+        "raw": "",
+        "form": []
+      },
+      "sortNum": 10000
+    },
+    {
+      "_id": "c1e1d200-0014-4d7a-8000-000000000014",
+      "containerId": "c1e1d100-0003-4d7a-8000-000000000003",
+      "name": "Create task",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/tasks",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "X-API-Key",
+          "value": "{{apiKey}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"name\": \"Weekday engineering standup\",\n  \"schedule\": \"0 9 * * 1-5\",\n  \"webhookUrl\": \"https://discord.com/api/webhooks/123456789012345678/abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\",\n  \"maxRetry\": 3,\n  \"retryDelayMs\": 1000,\n  \"status\": \"active\",\n  \"payload\": {\n    \"content\": \"Good morning team. Share yesterday, today, and blockers.\",\n    \"username\": \"PulseHook Bot\",\n    \"embeds\": [\n      {\n        \"title\": \"Daily standup\",\n        \"description\": \"Post your update in this thread.\",\n        \"color\": 5793266,\n        \"fields\": [\n          {\n            \"name\": \"Format\",\n            \"value\": \"Yesterday / Today / Blockers\",\n            \"inline\": false\n          }\n        ],\n        \"footer\": {\n          \"text\": \"Scheduled by PulseHook\"\n        }\n      }\n    ]\n  }\n}",
+        "form": []
+      },
+      "sortNum": 20000
+    },
+    {
+      "_id": "c1e1d200-0015-4d7a-8000-000000000015",
+      "containerId": "c1e1d100-0003-4d7a-8000-000000000003",
+      "name": "Seed sample tasks",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/tasks/seed-samples",
+      "headers": [
+        {
+          "name": "X-API-Key",
+          "value": "{{apiKey}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "none",
+        "raw": "",
+        "form": []
+      },
+      "sortNum": 30000
+    },
+    {
+      "_id": "c1e1d200-0016-4d7a-8000-000000000016",
+      "containerId": "c1e1d100-0003-4d7a-8000-000000000003",
+      "name": "Get task and recent logs",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/tasks/{{taskId}}",
+      "headers": [
+        {
+          "name": "X-API-Key",
+          "value": "{{apiKey}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "none",
+        "raw": "",
+        "form": []
+      },
+      "sortNum": 40000
+    },
+    {
+      "_id": "c1e1d200-0017-4d7a-8000-000000000017",
+      "containerId": "c1e1d100-0003-4d7a-8000-000000000003",
+      "name": "Update task",
+      "method": "PATCH",
+      "url": "{{baseUrl}}/api/tasks/{{taskId}}",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "X-API-Key",
+          "value": "{{apiKey}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"name\": \"Weekday engineering standup\",\n  \"schedule\": \"30 9 * * 1-5\",\n  \"webhookUrl\": \"https://discord.com/api/webhooks/123456789012345678/abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\",\n  \"maxRetry\": 3,\n  \"retryDelayMs\": 1000,\n  \"status\": \"active\",\n  \"payload\": {\n    \"content\": \"Standup starts in 30 minutes.\",\n    \"username\": \"PulseHook Bot\",\n    \"embeds\": [\n      {\n        \"title\": \"Daily standup\",\n        \"description\": \"Yesterday / Today / Blockers\",\n        \"color\": 5793266\n      }\n    ]\n  }\n}",
+        "form": []
+      },
+      "sortNum": 50000
+    },
+    {
+      "_id": "c1e1d200-0019-4d7a-8000-000000000019",
+      "containerId": "c1e1d100-0003-4d7a-8000-000000000003",
+      "name": "Duplicate task",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/tasks/{{taskId}}/duplicate",
+      "headers": [
+        {
+          "name": "X-API-Key",
+          "value": "{{apiKey}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "none",
+        "raw": "",
+        "form": []
+      },
+      "sortNum": 70000
+    },
+    {
+      "_id": "c1e1d200-0020-4d7a-8000-000000000020",
+      "containerId": "c1e1d100-0003-4d7a-8000-000000000003",
+      "name": "Run task now",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/tasks/{{taskId}}/run",
+      "headers": [
+        {
+          "name": "X-API-Key",
+          "value": "{{apiKey}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "none",
+        "raw": "",
+        "form": []
+      },
+      "sortNum": 80000
+    },
+    {
+      "_id": "c1e1d200-0021-4d7a-8000-000000000021",
+      "containerId": "c1e1d100-0003-4d7a-8000-000000000003",
+      "name": "Delete task",
+      "method": "DELETE",
+      "url": "{{baseUrl}}/api/tasks/{{taskId}}",
+      "headers": [
+        {
+          "name": "X-API-Key",
+          "value": "{{apiKey}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "none",
+        "raw": "",
+        "form": []
+      },
+      "sortNum": 90000
+    },
+    {
+      "_id": "c1e1d200-0022-4d7a-8000-000000000022",
+      "containerId": "c1e1d100-0004-4d7a-8000-000000000004",
+      "name": "Dashboard summary",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/dashboard/summary",
+      "headers": [
+        {
+          "name": "X-API-Key",
+          "value": "{{apiKey}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "none",
+        "raw": "",
+        "form": []
+      },
+      "sortNum": 10000
+    },
+    {
+      "_id": "c1e1d200-0023-4d7a-8000-000000000023",
+      "containerId": "c1e1d100-0004-4d7a-8000-000000000004",
+      "name": "Filter execution logs",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/logs?taskId={{taskId}}&status=success&search=standup&page=1&limit=25",
+      "headers": [
+        {
+          "name": "X-API-Key",
+          "value": "{{apiKey}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "none",
+        "raw": "",
+        "form": []
+      },
+      "sortNum": 20000
+    },
+    {
+      "_id": "c1e1d200-0024-4d7a-8000-000000000024",
+      "containerId": "c1e1d100-0005-4d7a-8000-000000000005",
+      "name": "Bootstrap first workspace key",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/auth/bootstrap",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "X-API-Key",
+          "value": "{{apiKey}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"name\": \"Initial workspace key\",\n  \"customKey\": \"replace-with-a-custom-key-of-at-least-12-characters\"\n}",
+        "form": []
+      },
+      "sortNum": 10000
+    },
+    {
+      "_id": "c1e1d200-0025-4d7a-8000-000000000025",
+      "containerId": "c1e1d100-0005-4d7a-8000-000000000005",
+      "name": "List API keys",
+      "method": "GET",
+      "url": "{{baseUrl}}/api/keys",
+      "headers": [
+        {
+          "name": "X-API-Key",
+          "value": "{{apiKey}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "none",
+        "raw": "",
+        "form": []
+      },
+      "sortNum": 20000
+    },
+    {
+      "_id": "c1e1d200-0026-4d7a-8000-000000000026",
+      "containerId": "c1e1d100-0005-4d7a-8000-000000000005",
+      "name": "Create API key",
+      "method": "POST",
+      "url": "{{baseUrl}}/api/keys",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "X-API-Key",
+          "value": "{{apiKey}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "json",
+        "raw": "{\n  \"name\": \"Thunder Client evaluator key\"\n}",
+        "form": []
+      },
+      "sortNum": 30000
+    },
+    {
+      "_id": "c1e1d200-0027-4d7a-8000-000000000027",
+      "containerId": "c1e1d100-0005-4d7a-8000-000000000005",
+      "name": "Revoke API key",
+      "method": "DELETE",
+      "url": "{{baseUrl}}/api/keys/{{keyId}}",
+      "headers": [
+        {
+          "name": "X-API-Key",
+          "value": "{{apiKey}}"
+        }
+      ],
+      "params": [],
+      "body": {
+        "type": "none",
+        "raw": "",
+        "form": []
+      },
+      "sortNum": 40000
+    }
+  ]
+}

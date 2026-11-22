@@ -1,0 +1,564 @@
+{
+  "info": {
+    "_postman_id": "3e68a7d7-6de7-4f86-9b31-fc984c5f44d8",
+    "name": "PulseHook API",
+    "description": "Import this collection into Postman. Set apiKey after creating an API key or authenticate with the cookie jar for session-only endpoints. baseUrl defaults to local Next.js proxy; production is https://pulsehook.bagos.web.id.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string",
+      "description": "Local Next.js proxy. Production: https://pulsehook.bagos.web.id"
+    },
+    {
+      "key": "apiKey",
+      "value": "",
+      "type": "string",
+      "description": "Paste a PulseHook API key here."
+    },
+    {
+      "key": "taskId",
+      "value": "1",
+      "type": "string",
+      "description": "Existing task ID for item routes."
+    },
+    {
+      "key": "keyId",
+      "value": "1",
+      "type": "string",
+      "description": "Existing API key ID for revocation."
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/health",
+            "description": "Public health check. Returns 503 when the database cannot be reached."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth & Recovery",
+      "item": [
+        {
+          "name": "Authentication status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/api/auth/status",
+            "description": "Public auth configuration and browser-session status."
+          },
+          "response": []
+        },
+        {
+          "name": "Register account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"pulsehook_evaluator\",\n  \"email\": \"evaluator@example.com\",\n  \"password\": \"SecurePass123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/auth/register",
+            "description": "Creates an account and starts the email OTP flow when registration is enabled."
+          },
+          "response": []
+        },
+        {
+          "name": "Start login OTP challenge",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"evaluator@example.com\",\n  \"password\": \"SecurePass123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/auth/login",
+            "description": "Validates credentials and starts a login OTP challenge."
+          },
+          "response": []
+        },
+        {
+          "name": "Verify OTP and start session",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"challengeToken\": \"replace-with-the-challenge-token-from-register-or-login\",\n  \"code\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/auth/verify-otp",
+            "description": "Replace both values with the active challenge token and the six-digit email code. Successful verification sets HttpOnly session cookies."
+          },
+          "response": []
+        },
+        {
+          "name": "Resend OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"challengeToken\": \"replace-with-the-challenge-token-from-register-or-login\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/auth/resend-otp",
+            "description": "Resends the active OTP challenge subject to the API rate limit."
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh session cookies",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{baseUrl}}"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "PulseHook"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/refresh",
+            "description": "Uses the Postman cookie jar for ph_access/ph_refresh. The origin and X-Requested-With header satisfy the cookie-session CSRF check."
+          },
+          "response": []
+        },
+        {
+          "name": "Sign out",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "{{baseUrl}}"
+              },
+              {
+                "key": "X-Requested-With",
+                "value": "PulseHook"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/logout",
+            "description": "Revokes the current cookie session and clears its cookies."
+          },
+          "response": []
+        },
+        {
+          "name": "Request password reset",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"evaluator@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/auth/forgot-password",
+            "description": "Requests a password-reset email without exposing account existence."
+          },
+          "response": []
+        },
+        {
+          "name": "Validate password reset token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"ph_rst_replace_with_a_valid_reset_token\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/auth/reset-password/validate",
+            "description": "Checks a password-reset token before presenting a reset form."
+          },
+          "response": []
+        },
+        {
+          "name": "Reset password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"ph_rst_replace_with_a_valid_reset_token\",\n  \"newPassword\": \"NewSecurePass123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/auth/reset-password",
+            "description": "Sets a new password with a valid reset token and clears active auth cookies."
+          },
+          "response": []
+        },
+        {
+          "name": "Current principal",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/me",
+            "description": "Requires an API key or an authenticated cookie session. This saved request uses X-API-Key."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Tasks CRUD & Execution",
+      "item": [
+        {
+          "name": "List tasks",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/tasks?status=active&search=standup",
+            "description": "Lists tasks owned by the authenticated principal. status and search are optional filters."
+          },
+          "response": []
+        },
+        {
+          "name": "Create task",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Weekday engineering standup\",\n  \"schedule\": \"0 9 * * 1-5\",\n  \"webhookUrl\": \"https://discord.com/api/webhooks/123456789012345678/abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\",\n  \"maxRetry\": 3,\n  \"retryDelayMs\": 1000,\n  \"status\": \"active\",\n  \"payload\": {\n    \"content\": \"Good morning team. Share yesterday, today, and blockers.\",\n    \"username\": \"PulseHook Bot\",\n    \"embeds\": [\n      {\n        \"title\": \"Daily standup\",\n        \"description\": \"Post your update in this thread.\",\n        \"color\": 5793266,\n        \"fields\": [\n          {\n            \"name\": \"Format\",\n            \"value\": \"Yesterday / Today / Blockers\",\n            \"inline\": false\n          }\n        ],\n        \"footer\": {\n          \"text\": \"Scheduled by PulseHook\"\n        }\n      }\n    ]\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/tasks",
+            "description": "Creates an account-scoped task. webhookUrl must be an official HTTPS Discord webhook URL; schedule is a five-field cron expression."
+          },
+          "response": []
+        },
+        {
+          "name": "Seed sample tasks",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/tasks/seed-samples",
+            "description": "Creates the bundled account-scoped starter tasks."
+          },
+          "response": []
+        },
+        {
+          "name": "Get task and recent logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/tasks/{{taskId}}",
+            "description": "Returns the task and up to 25 of its most recent logs."
+          },
+          "response": []
+        },
+        {
+          "name": "Update task",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Weekday engineering standup\",\n  \"schedule\": \"30 9 * * 1-5\",\n  \"webhookUrl\": \"https://discord.com/api/webhooks/123456789012345678/abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\",\n  \"maxRetry\": 3,\n  \"retryDelayMs\": 1000,\n  \"status\": \"active\",\n  \"payload\": {\n    \"content\": \"Standup starts in 30 minutes.\",\n    \"username\": \"PulseHook Bot\",\n    \"embeds\": [\n      {\n        \"title\": \"Daily standup\",\n        \"description\": \"Yesterday / Today / Blockers\",\n        \"color\": 5793266\n      }\n    ]\n  }\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/tasks/{{taskId}}",
+            "description": "Partially updates an account-owned task. The payload demonstrates every mutable task field."
+          },
+          "response": []
+        },
+        {
+          "name": "Duplicate task",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/tasks/{{taskId}}/duplicate",
+            "description": "Creates a paused copy of the selected account-owned task."
+          },
+          "response": []
+        },
+        {
+          "name": "Run task now",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/tasks/{{taskId}}/run",
+            "description": "Executes the task immediately. Manual execution caps retries at two and the retry wall-time budget at 25 seconds."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete task",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/tasks/{{taskId}}",
+            "description": "Deletes an account-owned task and its cascade-owned logs."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Logs & Stats",
+      "item": [
+        {
+          "name": "Dashboard summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/dashboard/summary",
+            "description": "Returns account-scoped task counts, execution metrics, upcoming tasks, and recent logs."
+          },
+          "response": []
+        },
+        {
+          "name": "Filter execution logs",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/logs?taskId={{taskId}}&status=success&search=standup&page=1&limit=25",
+            "description": "Filters account-scoped logs. taskId, status, and search are optional; page defaults to 1 and limit defaults to 100."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "API Keys",
+      "item": [
+        {
+          "name": "Bootstrap first workspace key",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Initial workspace key\",\n  \"customKey\": \"replace-with-a-custom-key-of-at-least-12-characters\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/auth/bootstrap",
+            "description": "One-time API key initialization for the authenticated user. Requires API authentication or an authenticated cookie session; returns 409 when already initialized or when API_KEY is configured on the server."
+          },
+          "response": []
+        },
+        {
+          "name": "List API keys",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/keys",
+            "description": "Lists API keys owned by the authenticated principal."
+          },
+          "response": []
+        },
+        {
+          "name": "Create API key",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Postman evaluator key\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{baseUrl}}/api/keys",
+            "description": "Creates an account-scoped API key. Save rawKey from the response because it is returned only at creation."
+          },
+          "response": []
+        },
+        {
+          "name": "Revoke API key",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/keys/{{keyId}}",
+            "description": "Revokes an account-owned API key."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

@@ -33,7 +33,7 @@ class _FakeQStashSession:
         if method == "GET" and url.endswith("/v2/schedules"):
             return _FakeResponse(200, self.remote_schedules)
         if method == "GET" and "/v2/logs" in url:
-            return _FakeResponse(200, {"logs": self.remote_logs})
+            return _FakeResponse(200, {"events": self.remote_logs})
         if method == "POST" and "/v2/schedules/" in url:
             return _FakeResponse(201, {"scheduleId": kwargs["headers"]["Upstash-Schedule-Id"]})
         if method == "DELETE" and "/v2/schedules/" in url:
@@ -113,6 +113,7 @@ def test_qstash_schedule_upsert_sync_keepalive_and_idempotent_logs(app_factory):
     assert post_calls[0]["url"].endswith(t_active["webhookUrl"])
     assert post_calls[0]["headers"]["Upstash-Schedule-Id"] == f"pulsehook_task_{t_active['id']}"
     assert post_calls[0]["headers"]["Upstash-Cron"] == "0 9 * * 1-5"
+    assert post_calls[0]["headers"]["Upstash-Label"] == "name-standup-reminder,cron-0-9-any-any-1-5"
     assert json.loads(post_calls[0]["data"]) == {"content": "Standup time"}
 
     # Confirm stale PulseHook schedules were deleted, while keepalive & foreign schedules were untouched
@@ -136,6 +137,7 @@ def test_qstash_schedule_upsert_sync_keepalive_and_idempotent_logs(app_factory):
     assert keepalive_call["headers"]["Upstash-Method"] == "GET"
     assert keepalive_call["headers"]["Upstash-Retries"] == "2"
     assert keepalive_call["headers"]["Upstash-Forward-Authorization"] == "Bearer ibp_secret_token"
+    assert keepalive_call["headers"]["Upstash-Label"] == "name-vps-keepalive,cron-any-every-10-any-any-any-any"
     # Idempotent log sync
     fake_http.remote_logs = [
         {

@@ -4,6 +4,13 @@ All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-11-23
+
+### Fixed
+
+- Read QStash delivery events from the `/v2/logs` response so scheduled deliveries persist in task logs and refresh dashboard run timestamps.
+- Label QStash task and keepalive schedules with their name and cron expression for easier identification.
+
 ## [1.0.0] - 2026-11-22
 
 ### Added

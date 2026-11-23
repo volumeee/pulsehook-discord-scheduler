@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import threading
 import time
 from datetime import UTC, datetime
@@ -28,6 +29,14 @@ logger = logging.getLogger(__name__)
 TASK_SCHEDULE_PREFIX = "pulsehook_task_"
 KEEPALIVE_SCHEDULE_ID = "pulsehook_keepalive"
 _TERMINAL_STATES = {"DELIVERED": "success", "FAILED": "failed", "ERROR": "failed"}
+
+
+def _schedule_label(name: str, schedule: str) -> str:
+    def token(value: str) -> str:
+        readable = value.strip().lower().replace("*", "any").replace("/", "-every-").replace(",", "-or-")
+        return re.sub(r"[^a-z0-9._-]+", "-", readable).strip("-._")[:60] or "unknown"
+
+    return f"name-{token(name)},cron-{token(schedule)}"
 
 
 class QStashSchedulerService:
@@ -137,6 +146,7 @@ class QStashSchedulerService:
                 "Content-Type": "application/json",
                 "Upstash-Cron": schedule.strip(),
                 "Upstash-Schedule-Id": self.schedule_id(task_id),
+                "Upstash-Label": _schedule_label(name, schedule),
                 "Upstash-Retries": str(max(0, retries)),
                 "Upstash-Method": "POST",
             },
@@ -188,6 +198,7 @@ class QStashSchedulerService:
         headers = {
             "Upstash-Cron": cron.strip(),
             "Upstash-Schedule-Id": KEEPALIVE_SCHEDULE_ID,
+            "Upstash-Label": _schedule_label("VPS keepalive", cron),
             "Upstash-Retries": "2",
             "Upstash-Method": "GET",
         }
@@ -245,7 +256,7 @@ class QStashSchedulerService:
             if resp is None or resp.status_code != 200 or not resp.content:
                 return 0
             payload = self._safe_json(resp, {})
-            entries = payload.get("logs", []) if isinstance(payload, dict) else []
+            entries = payload.get("events", []) if isinstance(payload, dict) else []
             return self._ingest_log_entries(entries)
         finally:
             self._sync_lock.release()
